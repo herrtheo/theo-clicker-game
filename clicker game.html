@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<head>
+    <meta content="width=device-width, initial scale=1.0">
+    <title>theo's clickgame</title>
+
+    <style>
+        #gameContainer {
+            height: 450px;
+            width: 300px;
+
+            color: green;
+            line-height: 10px;
+        }
+        body {
+            background-color: #35363A;
+            display: table;
+        }
+        #click {
+            height: 50px;
+            width: 60px;
+            color: black;
+            background-color: white;
+            border-style: dashed;
+        }
+        #click:hover {
+            background-color: grey;
+            cursor: pointer;
+            border-style: dotted;
+        }
+        .divBaseline {
+            border-width: 2px;
+            border-style: groove;
+            border-color: green;
+
+            display: inline-table;
+            background-color: black;
+            color: white;
+            padding: 10px;
+        }
+        #shopContainer {
+            width: 300px;
+            height: 450px;
+            margin-left: 5px;
+        }
+        #groupDivs {
+            text-align: center;
+            display: inline-table;
+        }
+        .storeItem {
+            background-color: green;
+            display: flex;
+        }
+        .buyButton {
+            width: 50px;
+            background-color: white;
+        }
+        .buyButton:hover {
+            cursor: pointer;
+            background-color: grey;
+        }
+        #itemTab {
+            color: white;
+            font-size: small;
+            background-color: black;
+
+            border-width: 2px;
+            border-color: white;
+            border-style: solid;
+
+            width: 150px;
+            height: fit-content;
+            margin-left: 420px;
+        }
+        .MK_image {
+            max-block-size: 28px;
+        }
+        #child_worker {
+            max-block-size: 28px;
+        }
+        #cw_Alertbox {
+            color: white;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div id="groupDivs">
+        <div id="gameContainer" class="divBaseline">
+
+            <p style="font-size:larger">Clicks = <span id="clickAmount">0</span></p>
+            <button id="click" onclick="addClick()">+1</button>
+
+            <p>clicks per second(cps): <span id="displayCPS">0</span></p>
+            <p>clicks per click(cpc): <span id="displayCPC">1</span></p>
+
+
+            <span id="cw_Alertbox"></span>
+
+        </div>
+
+        <div id="shopContainer" class="divBaseline">
+
+            <center><p>Item shop</p></center>
+
+            <div id="autoclickerItem" class="storeItem">
+                <button class="buyButton" onclick="buyAutoclicker()"><span id="ac_Cost">100</span></button>
+                <p>Autoclicker, +1 CPS</p>
+            </div>
+
+            <div id="mkStoreItem" class="storeItem">
+                <button class="buyButton" onclick="buyMK()"><span id="mk_Cost">1000</span></button>
+                <p>MK, +10 CPS & +2 CPC</p>
+            </div>
+
+            <div id="childStoreItem" class="storeItem">
+                <button class="buyButton" onclick="buyChildLabour()"><span id="cw_Cost">100</span></button>
+                <p>Every child worker gives 5cps, but dies after 30sec</p>
+            </div>
+
+        </div>
+
+        <div id="itemTab" class="divBaseline">
+            <p style="font-size:larger">ITEMS</p>
+    
+            <div style="display:table">
+                <p><img src="clicker game.info/pointer.png">Autoclicker: <span id="ac_Amount">0</span></p>
+    
+                <p><img class="MK_image" src="clicker game.info/mk_item.png">MK: <span id="mk_Amount">0</span></p>
+
+                <p><img id="child_worker" src="clicker game.info/child_worker.png">Child workers: <span id="cw_Amount">0</span></p>
+            </div> 
+        </div>
+
+    </div>
+
+    <script>
+    //variables
+
+        var clickAmount = 100;
+        var cps = 0;
+        var cpc = 1;
+
+    //store items
+
+        var ac_Cost = 100;
+        var ac_Amount = 0;
+
+        
+        var mk_Cost = 1000;
+        var mk_Amount = 0;
+
+
+        var cw_Cost = 100;
+        var cw_Amount = 0;
+
+    //gameFunctions
+
+        function addClick() {
+            clickAmount = clickAmount + cpc;
+            document.getElementById("clickAmount").innerText = clickAmount;
+        }
+
+        setInterval(function(){
+            clickAmount += cps;
+            document.getElementById("clickAmount").innerText = clickAmount;
+
+        },1000)
+
+    //Purchase items
+
+        function buyAutoclicker() {
+            if (clickAmount >= ac_Cost) {
+            clickAmount -= ac_Cost;
+            ac_Amount += 1;
+            cps += 1;
+
+            ac_Cost = ac_Cost * 1.01;
+
+            document.getElementById("ac_Amount").innerText = ac_Amount;
+            document.getElementById("ac_Cost").innerText = ac_Cost;
+            document.getElementById("displayCPS").innerText = cps;
+            } else {alert("you have no money")}
+        }
+
+        function buyMK() {
+            if (clickAmount >= mk_Cost) {
+            clickAmount -= mk_Cost;
+            mk_Amount += 1;
+
+            cps += 10;
+            cpc += 2;
+
+            mk_Cost = mk_Cost * 1.1;
+
+            document.getElementById("mk_Amount").innerText = mk_Amount;
+            document.getElementById("mk_Cost").innerText = mk_Cost;
+
+            document.getElementById("displayCPS").innerText = cps;
+            document.getElementById("displayCPC").innerText = cpc;
+            } else {alert("you have no money")}
+        }
+
+        
+
+        function buyChildLabour() {
+            if (clickAmount >= cw_Cost) {
+            clickAmount -= cw_Cost;
+
+            cw_Amount += 1;
+            cps += 5;
+
+            document.getElementById("cw_Amount").innerText = cw_Amount;
+            document.getElementById("displayCPS").innerText = cps;
+
+            setTimeout(function(){
+                cw_Amount -= 1;
+                cps -= 5;
+                
+                document.getElementById("cw_Amount").innerText = cw_Amount;
+                document.getElementById("displayCPS").innerText = cps;
+                document.getElementById("cw_Alertbox").innerHTML = "one of your child workers have died.";
+            },30000)
+            setTimeout(function(){
+
+                document.getElementById("cw_Alertbox").innerHTML = "";
+
+            },30500)
+            } else {alert("you have no money")}
+        }
+
+    </script>
+</body>
