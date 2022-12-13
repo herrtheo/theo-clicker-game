@@ -17,7 +17,7 @@
         }
         #click {
             height: 50px;
-            width: 60px;
+            width: fit-content;
             color: black;
             background-color: white;
             border-style: dashed;
@@ -100,7 +100,7 @@
 
         }
         .upgradeItem {
-            background-color: darkslategray;
+            background-color: darkslateblue;
             height: 50px;
             display: inline-table;
             
@@ -117,6 +117,9 @@
             
             background-color: darkgreen;
         }
+        #infoText {
+            color: darkgreen;
+        }
     </style>
 
 </head>
@@ -130,9 +133,6 @@
             <button id="click" onclick="addClick()">+<span id="displayCPC">1</span></button>
 
             <p>clicks per second(cps): <span id="displayCPS">0</span></p>
-
-
-            <span id="cw_Alertbox"></span>
 
             <div id="itemTab" class="divBaseline">
                 <p class="containerName">Items;</p>
@@ -159,7 +159,7 @@
 
             <div id="mkStoreItem" class="storeItem">
                 <button class="buyButton" onclick="buyMK()">-<span id="mk_Cost">1000</span></button>
-                <p>MK, +10 CPS & +2 CPC</p>
+                <p>MK, +10 CPS & +<span id="MK_CPC">2</span>CPC</p>
             </div>
 
             <div id="childStoreItem" class="storeItem">
@@ -173,21 +173,36 @@
             <p class="containerName">Upgrades;</p>
 
             <div class="upgradeItem">
-                <button class="buyButton">-<span id="doubleClick_Cost">500</span></button>
+                <button class="buyButton" onclick="upgradeClicks()">-<span id="doubleClick_Cost">500</span></button>
 
-                <p>double clicks</p>
+                <p>2x clicks for 10 min</p>
+                <p>15 min cooldown</p>
+            </div>
 
-                <p>x2 clicks for 10 mins</p>
+            <div class="upgradeItem">
+                <button class="buyButton" onclick="upgradeMK()">-<span id="mkUpgrade_Cost">5000</span></button>
+
+                <p>-25% of mk cost & x1.5  mk CPC.</p>
+                <p>30 min cooldown</p>
+            </div>
+
+            <div class="upgradeItem">
+                <button class="buyButton">-<span id="helt akho"></span>2500</button>
+
+                <p>You become helt akho startklar, for 5 minutes:</p>
+                <p>50% increase cps. 15 min cooldown</p>
             </div>
 
         </div>
 
     </div>
 
+    <span id="alertbox"></span>
+
     <script>
         //variables
     
-            var clickAmount = 1000;
+            var clickAmount = 10000;
             var cps = 0;
             var cpc = 1;
     
@@ -203,17 +218,29 @@
     
             var cw_Cost = 100;
             var cw_Amount = 0;
+
+        //upgrades
+
+            var dubClick_Cost = 500;
+            let dubClick_Cooldown = 0;
+
+            var upgradeMK_Cost = 5000;
+            let upgradeMK_Cooldown = 0;
+
+            var MK_CPC = 2;
     
         //gameFunctions
     
             function addClick() {
                 clickAmount = clickAmount + cpc;
-                document.getElementById("clickAmount").innerHTML=Math.trunc(clickAmount);
+                document.getElementById("clickAmount").innerText = clickAmount;
             }
     
             setInterval(function(){
                 clickAmount += cps;
                 document.getElementById("clickAmount").innerHTML=Math.trunc(clickAmount);
+                
+                document.getElementById("alertbox").innerText = ""
     
             },1000)
     
@@ -244,7 +271,7 @@
                 mk_Cost = mk_Cost * 1.1;
     
                 document.getElementById("mk_Amount").innerText = mk_Amount;
-                document.getElementById("mk_Cost").innerText = mk_Cost;
+                document.getElementById("mk_Cost").innerHTML=Math.trunc(mk_Cost);
     
                 document.getElementById("displayCPS").innerText = cps;
                 document.getElementById("displayCPC").innerText = cpc;
@@ -269,15 +296,76 @@
                     
                     document.getElementById("cw_Amount").innerText = cw_Amount;
                     document.getElementById("displayCPS").innerText = cps;
-                    document.getElementById("cw_Alertbox").innerHTML = "one of your child workers have died.";
+                    document.getElementById("cw_Alertbox").innerHTML = "one of your child workers has died.";
                 },30000)
                 setTimeout(function(){
     
-                    document.getElementById("cw_Alertbox").innerHTML = "";
+                    document.getElementById("alertbox").innerHTML = "";
     
                 },30500)
                 } else {alert("not enough clicks")}
             }
+
+            function upgradeClicks() {
+                if (dubClick_Cooldown <= 0 && clickAmount >= dubClick_Cost) {
+                        clickAmount -= dubClick_Cost;
+                        dubClick_Cooldown += 1;
+                        cpc *= 2;
+
+                        document.getElementById("doubleClick_Cost").innerText = "on cooldown";
+                        document.getElementById("displayCPC").innerText = cpc;
+
+                    setTimeout(function(){
+                            dubClick_Cost *= 1.25;
+                            dubClick_Cooldown -= 1;
+                            cpc *= 0.5;
+
+                            document.getElementById("doubleClick_Cost").innerHTML=Math.trunc(dubClick_Cost);
+                            document.getElementById("displayCPC").innerText=Math.trunc(cpc);
+                            
+                            document.getElementById("alertbox").innerText = "Double click is now off cooldown."
+                        
+                    },600000)
+
+                    setTimeout(function(){
+                        document.getElementById("alertbox").innerText = ""
+                    },601500)
+                } else {alert("not enough clicks, or on cooldown")}
+            }
+
+            let x_mk = 1.5;
+
+            function upgradeMK() {
+                if (upgradeMK_Cooldown <= 0 && clickAmount >= upgradeMK_Cost) {
+
+                clickAmount -= upgradeMK_Cost;
+                upgradeMK_Cooldown += 1;
+                mk_Cost *= 0.75;
+                MK_CPC *= 1.5;
+
+                x_mk *= mk_Amount;
+                cpc += x_mk;
+
+                document.getElementById("MK_CPC").innerText = MK_CPC;
+                document.getElementById("mk_Cost").innerHTML=Math.trunc(mk_Cost);
+                document.getElementById("displayCPC").innerText = cpc;
+                document.getElementById("mkUpgrade_Cost").innerText = "on cooldown";
+                document.getElementById("alertbox").innerText = "";
+
+
+                setTimeout(function() {
+                    upgradeMK_Cost *= 1.5;
+                    upgradeMK_Cooldown -= 1;
+
+                    document.getElementById("mkUpgrade_Cost").innerText = upgradeMK_Cost;
+                    document.getElementById("alertbox").innerText = "mk upgrade is now off cooldown";
+                },1800)
+
+                } else {alert("not enough clicks, or on cooldown.")}
+            }
     
         </script>
+
+    <p id="infoText">"if you reload page, your progress will be lost."</p>
+
 </body>
